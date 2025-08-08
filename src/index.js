@@ -14,16 +14,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  //Fetch Request
-  function getAllToys(){
-    fetch('http://localhost:3000/toys')
-    .then(res => res.json())
-    .then(toys => toys.forEach((toy) => renderOneToy(toy)))
-  }
-  getAllToys()
-
- 
-
 
   //Build Toy Card
   function renderOneToy(toy){
@@ -32,11 +22,18 @@ document.addEventListener("DOMContentLoaded", () => {
     toyCard.innerHTML = `
     <h2>${toy.name}</h2>
     <img class="toy-avatar" src= "${toy.image}" />
-    <p> ${toy.likes} Likes </p>
-    <button class="like-btn" id"${toy.id}> Like ❤️ </button>    
+    <p> <span>${toy.likes}</span> Likes </p>
+    <button class="like-btn" id="${toy.id}"> Like ❤️ </button>    
     `
     //Add animal card to DOM
     document.querySelector('#toy-collection').appendChild(toyCard)
+
+    //Add event listener to like button and increase likes
+    toyCard.querySelector(".like-btn").addEventListener('click', () => {
+      toy.likes+= 1;
+      toyCard.querySelector('span').textContent = toy.likes;
+      updateLikes(toy)
+    });    
   }
 
   //add toy via form
@@ -56,6 +53,14 @@ document.addEventListener("DOMContentLoaded", () => {
     addNewToy(newToy);
   } 
 
+  //Fetch Requests
+  function getAllToys(){
+    fetch('http://localhost:3000/toys')
+    .then(res => res.json())
+    .then(toys => toys.forEach((toy) => renderOneToy(toy)))
+  }
+  getAllToys()
+
   function addNewToy(newToy) {
    fetch('http://localhost:3000/toys',{
       method: 'POST',
@@ -68,6 +73,18 @@ document.addEventListener("DOMContentLoaded", () => {
     .then(res => res.json())
   }
 
+  function updateLikes(toyObj){
+    fetch(`http://localhost:3000/toys/${toyObj.id}`,{
+      method: 'PATCH',
+      headers:{
+        'Content-Type': 'application/json',
+        Accept: 'application/json'
+      },
+      body:JSON.stringify(toyObj)
+     })
+    .then(res => res.json())
+    .then(toy => console.log(toy))
 
+  }
 
 });
